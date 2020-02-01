@@ -13,3 +13,10 @@ Scripts utilizados para o processamento de dados do nosso Analytics
 - Sempre utilize testes
 - Mantenha seu código organizado
 
+## Como testar
+
+```bash
+
+pip install -r requirements-dev.txt
+pytest .
+```

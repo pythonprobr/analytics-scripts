@@ -57,13 +57,15 @@ def test_should_ignore_string_without_equals():
 
 
 def test_should_retrieve_all_leads_from_database_until_now(mocker):
-    mocked_session = mocker.patch("tasks.load_leads.session")
+    mocked_session = mocker.patch("resources.database.session")
+    mocker.patch("tasks.load_leads._prepare_date_joined")
 
     _get_all_leads_from_database_until_now()
     assert mocked_session.query.called
 
 
 def test_should_prepare_data_to_be_loaded(mocker):
+    mocker.patch("tasks.load_leads._prepare_date_joined", return_value="2020-02-01")
     mocker.patch(
         "tasks.load_leads._get_all_leads_from_database_until_now",
         return_value=[
@@ -98,7 +100,7 @@ def test_should_prepare_data_to_be_loaded(mocker):
 
 @pytest.fixture
 def mocked_worksheet(mocker):
-    return mocker.patch("tasks.load_leads.worksheet")
+    return mocker.patch("tasks.load_leads._get_leads_worksheet")
 
 
 def test_should_return_get_gsheets_current_data(mocked_worksheet):

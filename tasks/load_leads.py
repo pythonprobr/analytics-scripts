@@ -47,6 +47,10 @@ def _get_all_leads_from_database_until_now():
     return qs
 
 
+def _prepare_date_joined(date_joined):
+    return date_joined.astimezone(TIME_ZONE).strftime("%Y-%m-%d %H:%M:%S")
+
+
 def _prepare_leads_to_save_in_gsheets():
     rows = []
     emails = []
@@ -55,9 +59,9 @@ def _prepare_leads_to_save_in_gsheets():
             continue
 
         emails.append(email)
-        date_joined = date_joined.astimezone(TIME_ZONE)
+        date_joined = _prepare_date_joined(date_joined)
 
-        row = [date_joined.strftime("%Y-%m-%d %H:%M:%S"), email]
+        row = [date_joined, email]
 
         utms = _fetch_query_string(meta["QUERY_STRING"])
         row.append(utms.get("utm_source"))
