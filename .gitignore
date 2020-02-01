@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# custom
+/client_secret.json
+/credentials.json
+/sheets.googleapis.com-python.json
+/.vscode/

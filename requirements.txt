@@ -1,0 +1,6 @@
+ psycopg2-binary
+ pygsheets
+ python-decouple
+ python-pagarme
+ pytz
+ sqlalchemy
