@@ -1,28 +1,115 @@
 from datetime import datetime, timedelta
 
+from flatten_json import flatten
+
 from resources.pagarme import pagarme
+from utils import log
 
 
 def _get_seven_days_ago():
     return datetime.now() - timedelta(days=7)
 
 
-def _get_pagarme_filters(page_count):
+def _get_pagarme_filters(page_count, since):
     return {
         "page": page_count,
         "count": 100,
-        "date_created": f">={_get_seven_days_ago():%Y-%m-%d}",
+        "date_created": f">={since:%Y-%m-%d}",
     }
 
 
-def _get_transactions_from_pagarme():
+def _get_transactions_from_pagarme(since):
     page_count = 0
     while True:
         page_count += 1
-        transactions = pagarme.transaction.find_by(_get_pagarme_filters(page_count))
+        transactions = pagarme.transaction.find_by(
+            _get_pagarme_filters(page_count, since)
+        )
         if not transactions:
             break
 
         for item in transactions:
             yield item
 
+
+def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
+    transactions = []
+
+    for transaction in _get_transactions_from_pagarme(since):
+        row = flatten(transaction)
+
+        for key, value in row.items():
+            if isinstance(value, dict) and value == {}:
+                row[key] = ""
+
+            elif value is False:
+                row[key] = "falso"
+
+            elif value is True:
+                row[key] = "verdadeiro"
+
+            elif value is None:
+                row[key] = ""
+
+            else:
+                row[key] = f"{value}"
+
+        transactions.append(row)
+    return transactions
+
+
+def _get_transactions_worksheet():
+    from resources.gsheets import spreadsheet
+
+    return spreadsheet.worksheet_by_title("Transações")
+
+
+def _get_gsheets_current_data():
+    worksheet = _get_transactions_worksheet()
+    return worksheet.get_all_values(include_tailing_empty_rows=False)
+
+
+def _save_new_data_in_gsheets(data):
+    worksheet = _get_transactions_worksheet()
+    worksheet.update_values("A1", data)
+
+
+def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
+    data_to_gsheets = []
+    data_from_api = {item["id"]: item for item in data_from_api}
+
+    for row in data_from_gsheets:
+        transaction_id = row[9]
+        if transaction_id in data_from_api:
+            row = list(data_from_api[transaction_id].values())
+            del data_from_api[transaction_id]
+
+        data_to_gsheets.append(row)
+
+    for transaction_id in data_from_api:
+        row = list(data_from_api[transaction_id].values())
+        data_to_gsheets.append(row)
+
+    return data_to_gsheets
+
+
+def run(since=_get_seven_days_ago()):
+    log.info("Iniciando carregamento de novas transações...")
+
+    log.info("Recuperando transações da API do Pagarme...")
+    leads_from_api = _prepare_data_to_be_loaded(since)
+
+    log.info("Recuperando transações da planilha...")
+    data_from_gsheets = _get_gsheets_current_data()
+
+    log.info("Juntando transações...")
+    new_data = _generate_data_with_new_transactions(leads_from_api, data_from_gsheets)
+
+    log.info("Salvando novas transações na planilha...")
+    _save_new_data_in_gsheets(new_data)
+
+    log.info("Fim da tarefa.")
+
+
+if __name__ == "__main__":
+    run()
