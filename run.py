@@ -7,7 +7,7 @@ if __name__ == "__main__":
     log.info("--> Iniciando processamento...")
 
     load_leads_run()
-    load_transactions_run()
     load_leads_activations_run()
+    load_transactions_run()
 
     log.info("--> Fim do processamento.")

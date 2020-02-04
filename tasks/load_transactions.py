@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from flatten_json import flatten
 
 from resources.pagarme import pagarme
+from settings import TIME_ZONE
 from utils import log
 
 
@@ -32,28 +33,59 @@ def _get_transactions_from_pagarme(since):
             yield item
 
 
+def _prepare_datetime(creation):
+    if not creation:
+        return
+
+    date = creation.split("T")[0]
+    time = creation.split("T")[1].split(".")[0]
+    creation = f"{date} {time}"
+    creation = datetime.strptime(creation, "%Y-%m-%d %H:%M:%S")
+    return creation.astimezone(TIME_ZONE).strftime("%Y-%m-%d %H:%M:%S")
+
+
 def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
+    needed_keys = [
+        "amount",
+        "authorized_amount",
+        "cost",
+        "date_created",
+        "date_updated",
+        "boleto_expiration_date",
+        "id",
+        "ip",
+        "nsu",
+        "order_id",
+        "paid_amount",
+        "status",
+        "subscription_id",
+        "tid",
+        "items",
+    ]
+
     transactions = []
-
     for transaction in _get_transactions_from_pagarme(since):
-        row = flatten(transaction)
+        row = {}
+        for key in transaction:
+            if key in needed_keys:
+                row[key] = transaction[key]
 
-        for key, value in row.items():
-            if isinstance(value, dict) and value == {}:
-                row[key] = ""
+        row["date_created"] = _prepare_datetime(row["date_created"])
+        row["date_updated"] = _prepare_datetime(row["date_updated"])
+        row["boleto_expiration_date"] = _prepare_datetime(row["boleto_expiration_date"])
+        row["offer"] = ""
 
-            elif value is False:
-                row[key] = "falso"
+        if row["items"]:
+            if "pytools-oto-" in row["items"][0]["id"]:
+                row["offer"] = "pytools-oto"
 
-            elif value is True:
-                row[key] = "verdadeiro"
+            elif "pytools-" in row["items"][0]["id"]:
+                row["offer"] = "pytools"
 
-            elif value is None:
-                row[key] = ""
+            elif "membership-" in row["items"][0]["id"]:
+                row["offer"] = "membership"
 
-            else:
-                row[key] = f"{value}"
-
+        del row["items"]
         transactions.append(row)
     return transactions
 
@@ -76,6 +108,10 @@ def _save_new_data_in_gsheets(data):
 
 def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
     data_to_gsheets = []
+
+    headers = list(data_from_api[0].keys())
+    data_to_gsheets.append(headers)
+
     data_from_api = {item["id"]: item for item in data_from_api}
 
     for row in data_from_gsheets:
