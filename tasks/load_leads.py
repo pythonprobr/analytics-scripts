@@ -9,8 +9,19 @@ def _fetch_query_string(query_string):
     if "&" in query_string and "=" in query_string:
         for item in query_string.split("&"):
             key, value = item.split("=") if "utm_" in item else (None, None)
+
             if key and value:
                 items[key] = value
+
+        if items.get("utm_source") == "google-ads":
+            items["utm_source"] = "rede-de-pesquisa"
+
+            if items.get("utm_medium") == "search":
+                items["utm_medium"] = "trafego-pago"
+
+        if items.get("utm_medium") == "pago":
+            items["utm_medium"] = "trafego-pago"
+
     return items
 
 
@@ -30,7 +41,8 @@ def _get_all_leads_from_database_until_now():
 
     qs = (
         session.query(CoreUser.date_joined, CoreUser.email, AnalyticsPageview.meta)
-        .filter(CoreUser.date_joined >= _get_seven_days_ago())
+        .filter(CoreUser.date_joined >= datetime(2019, 12, 1))
+        # .filter(CoreUser.date_joined >= _get_seven_days_ago())
         .join(AnalyticsUsersession, AnalyticsUsersession.user_id == CoreUser.id)
         .join(
             AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id
@@ -41,7 +53,6 @@ def _get_all_leads_from_database_until_now():
             .like("%curso-de-python-gratis%")
         )
         .order_by(AnalyticsPageview.created)
-        .all()
     )
 
     return qs
@@ -54,7 +65,7 @@ def _prepare_date_joined(date_joined):
 def _prepare_leads_to_save_in_gsheets():
     rows = []
     emails = []
-    for date_joined, email, meta in _get_all_leads_from_database_until_now():
+    for date_joined, email, meta in _get_all_leads_from_database_until_now().all():
         if email in emails:
             continue
 
