@@ -8,6 +8,7 @@ from utils import log
 
 
 def _get_seven_days_ago():
+    # return datetime(2019, 12, 1)
     return datetime.now() - timedelta(days=7)
 
 
@@ -60,15 +61,20 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
         "status",
         "subscription_id",
         "tid",
+        "email",
         "items",
     ]
 
     transactions = []
     for transaction in _get_transactions_from_pagarme(since):
         row = {}
-        for key in transaction:
+        for key, value in transaction.items():
+            if key == "customer":
+                key = "email"
+                value = transaction["customer"][key]
+
             if key in needed_keys:
-                row[key] = transaction[key]
+                row[key] = value
 
         row["date_created"] = _prepare_datetime(row["date_created"])
         row["date_updated"] = _prepare_datetime(row["date_updated"])
@@ -109,13 +115,18 @@ def _save_new_data_in_gsheets(data):
 def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
     data_to_gsheets = []
 
-    headers = list(data_from_api[0].keys())
+    # headers = list(data_from_api[0].keys())
     # data_to_gsheets.append(headers)
 
     data_from_api = {item["id"]: item for item in data_from_api}
 
     for row in data_from_gsheets:
-        transaction_id = row[9]
+        transaction_id = row[8]
+        try:
+            transaction_id = int(row[8])
+        except ValueError:
+            pass
+
         if transaction_id in data_from_api:
             row = list(data_from_api[transaction_id].values())
             del data_from_api[transaction_id]
