@@ -110,7 +110,7 @@ def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
     data_to_gsheets = []
 
     headers = list(data_from_api[0].keys())
-    data_to_gsheets.append(headers)
+    # data_to_gsheets.append(headers)
 
     data_from_api = {item["id"]: item for item in data_from_api}
 
