@@ -69,6 +69,7 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
         "subscription_id",
         "tid",
         "email",
+        "payment_method",
         "items",
     ]
 
