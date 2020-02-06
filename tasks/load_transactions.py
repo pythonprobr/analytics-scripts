@@ -34,14 +34,21 @@ def _get_transactions_from_pagarme(since):
             yield item
 
 
-def _prepare_datetime(creation):
+def _str_to_datetime(creation):
     if not creation:
         return
 
     date = creation.split("T")[0]
     time = creation.split("T")[1].split(".")[0]
     creation = f"{date} {time}"
-    creation = datetime.strptime(creation, "%Y-%m-%d %H:%M:%S")
+    return datetime.strptime(creation, "%Y-%m-%d %H:%M:%S")
+
+
+def _prepare_datetime(creation):
+    creation = _str_to_datetime(creation)
+    if not creation:
+        return
+
     return creation.astimezone(TIME_ZONE).strftime("%Y-%m-%d %H:%M:%S")
 
 
@@ -76,9 +83,16 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
             if key in needed_keys:
                 row[key] = value
 
+        expiration = _str_to_datetime(row["boleto_expiration_date"])
+
         row["date_created"] = _prepare_datetime(row["date_created"])
         row["date_updated"] = _prepare_datetime(row["date_updated"])
         row["boleto_expiration_date"] = _prepare_datetime(row["boleto_expiration_date"])
+
+        row["expired"] = "false"
+        if expiration and expiration < datetime.now() and row["status"] != "paid":
+            row["expired"] = "true"
+
         row["offer"] = ""
 
         if row["items"]:
