@@ -90,9 +90,9 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
         row["date_updated"] = _prepare_datetime(row["date_updated"])
         row["boleto_expiration_date"] = _prepare_datetime(row["boleto_expiration_date"])
 
-        row["expired"] = "false"
+        row["expired"] = 0
         if expiration and expiration < datetime.now() and row["status"] != "paid":
-            row["expired"] = "true"
+            row["expired"] = 1
 
         row["offer"] = ""
 
