@@ -26,6 +26,7 @@ def _fetch_query_string(query_string):
 
 
 def _get_seven_days_ago():
+    # return datetime(2019, 12, 1)
     return datetime.now() - timedelta(days=7)
 
 
@@ -41,8 +42,7 @@ def _get_all_leads_from_database_until_now():
 
     qs = (
         session.query(CoreUser.date_joined, CoreUser.email, AnalyticsPageview.meta)
-        .filter(CoreUser.date_joined >= datetime(2019, 12, 1))
-        # .filter(CoreUser.date_joined >= _get_seven_days_ago())
+        .filter(CoreUser.date_joined >= _get_seven_days_ago())
         .join(AnalyticsUsersession, AnalyticsUsersession.user_id == CoreUser.id)
         .join(
             AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id
