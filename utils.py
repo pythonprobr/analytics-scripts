@@ -1,6 +1,6 @@
 import logging
 
-formatter = logging.Formatter("[%(asctime)s][%(filename)s][%(levelname)s] %(message)s")
+formatter = logging.Formatter("%(asctime)s|%(levelname)s|%(filename)s| %(message)s")
 ch = logging.StreamHandler()
 ch.setFormatter(formatter)
 
