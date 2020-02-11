@@ -77,7 +77,12 @@ def _get_all_leads_from_database_until_now():
             SELECT created FROM analytics_pageview p4 
             WHERE
                 p4.session_id = p1.session_id
-                AND p4.meta->>'PATH_INFO' = '/pagamento/pytools/obrigado/'
+                AND (
+                    p4.meta->>'PATH_INFO' = '/pagamento/pytools/obrigado/'
+                    OR p4.meta->>'PATH_INFO' = '/pagamento/pytools/obrigado'
+                    OR p4.meta->>'PATH_INFO' = '/pagamento/pytools/boleto/'
+                    OR p4.meta->>'PATH_INFO' = '/pagamento/pytools/boleto'
+                )
             ORDER BY 1
             LIMIT 1
         ) as p4 ON TRUE
@@ -95,7 +100,7 @@ def _get_all_leads_from_database_until_now():
             p1.meta->>'PATH_INFO' = '/curso-de-python-gratis'
             AND p1.created >= :created
 
-        ORDER BY p1.session_id ASC
+        ORDER BY p1.session_id, p1.created ASC
         ;
     """
     )
@@ -178,7 +183,7 @@ def _get_gsheets_current_data():
 def _generate_data_with_new_infos(items_from_database, data_from_gsheets):
     current_infos = [item[0] for item in data_from_gsheets]
     for item in items_from_database:
-        id_ = item[0]
+        id_ = str(item[0])
         if id_ in current_infos:
             continue
 
