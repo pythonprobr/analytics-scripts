@@ -77,12 +77,13 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
     for transaction in _get_transactions_from_pagarme(since):
         row = {}
         for key, value in transaction.items():
-            if key == "customer":
-                key = "email"
-                value = transaction["customer"][key]
-
             if key in needed_keys:
                 row[key] = value
+
+            if key == "customer":
+                row["email"] = transaction["customer"]["email"]
+                row["name"] = transaction["customer"]["name"]
+                row["phone_number"] = transaction["customer"]["phone_numbers"][0]
 
         expiration = _str_to_datetime(row["boleto_expiration_date"])
 
