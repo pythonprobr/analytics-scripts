@@ -45,6 +45,7 @@ def _get_all_leads_from_database_until_now():
         SELECT 
             p1.id
             , p1.session_id
+            , u.email
             , p1.created
             , p1.meta
             , 1 as visited_landing_page
@@ -54,6 +55,9 @@ def _get_all_leads_from_database_until_now():
             , CASE WHEN p5.created IS NOT NULL THEN 1 ELSE 0 END as activated
         FROM
             analytics_pageview p1
+        
+        LEFT JOIN analytics_usersession s ON p1.session_id = s.id
+        LEFT JOIN core_user u ON s.user_id = u.id
 
         LEFT OUTER JOIN LATERAL (
             SELECT created FROM analytics_pageview p2 
@@ -122,6 +126,7 @@ def _prepare_visits_to_save_in_gsheets():
     for (
         id_,
         session_id,
+        email,
         created,
         meta,
         visited_landing_page,
@@ -152,6 +157,7 @@ def _prepare_visits_to_save_in_gsheets():
         row = [
             id_,
             created,
+            email,
             visited_landing_page,
             visited_oto,
             subscribed,
