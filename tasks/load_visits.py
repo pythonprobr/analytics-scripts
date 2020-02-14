@@ -1,7 +1,16 @@
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 from settings import TIME_ZONE
 from utils import log
+
+
+def _extract_domain(uri):
+    if not uri:
+        return ""
+
+    uri = urlparse(uri)
+    return uri.netloc
 
 
 def _fetch_query_string(query_string):
@@ -169,6 +178,7 @@ def _prepare_visits_to_save_in_gsheets():
         row.append(utms.get("utm_campaign"))
         row.append(utms.get("utm_term"))
         row.append(utms.get("utm_content"))
+        row.append(_extract_domain(meta.get("HTTP_REFERER")))
         rows.append(row)
 
     log.debug(f"{duplicated} duplicados removidos.")
