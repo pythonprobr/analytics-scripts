@@ -14,6 +14,33 @@ def _extract_domain(uri):
 
 
 def _fetch_query_string(query_string):
+    ORGANIC_SOURCES = (
+        "youtube-moacir",
+        "youtube",
+        "anchor",
+        "twitter",
+        "gmail",
+        "facebook",
+        "blog",
+        "cafe-com-python",
+        "plantao-python-pro",
+        "youtube-card",
+        "python-brasil",
+    )
+
+    PAID_SOURCES = (
+        "rede-de-pesquisa",
+        "youtube-ads",
+        "facebook-ads",
+    )
+
+    MAP_SOURCES = {"google-ads": "rede-de-pesquisa"}
+
+    MAP_MEDIUM = {
+        "pago": "trafego-pago",
+        "search": "trafego-pago",
+    }
+
     items = {}
     if "&" in query_string and "=" in query_string:
         for item in query_string.split("&"):
@@ -27,13 +54,18 @@ def _fetch_query_string(query_string):
             if key and value:
                 items[key] = value
 
-        if items.get("utm_source") == "google-ads":
-            items["utm_source"] = "rede-de-pesquisa"
+        for key, value in MAP_SOURCES.items():
+            if key == items.get("utm_source"):
+                items["utm_source"] = value
 
-            if items.get("utm_medium") == "search":
-                items["utm_medium"] = "trafego-pago"
+        for key, value in MAP_MEDIUM.items():
+            if key == items.get("utm_medium"):
+                items["utm_medium"] = value
 
-        if items.get("utm_medium") == "pago":
+        if items["utm_source"] in ORGANIC_SOURCES:
+            items["utm_medium"] = "trafego-organico"
+
+        if items["utm_source"] in PAID_SOURCES:
             items["utm_medium"] = "trafego-pago"
 
     return items
@@ -43,6 +75,13 @@ def _get_created():
     # return datetime(2020, 2, 9)
     # return datetime(2020, 1, 1)
     return datetime.now() - timedelta(days=7)
+
+
+def _email_is_valid(email):
+    for search in ["@python.pro.br", "moa.moda@gmail.com"]:
+        if search in email:
+            return False
+    return True
 
 
 def _get_all_leads_from_database_until_now():
@@ -72,6 +111,7 @@ def _get_all_leads_from_database_until_now():
             SELECT created FROM analytics_pageview p2 
             WHERE
                 p2.session_id = p1.session_id
+                AND u.email IS NOT NULL
                 AND p2.meta->>'PATH_INFO' = '/pagamento/curso-de-python-intermediario-oto'
             ORDER BY 1
             LIMIT 1
@@ -81,6 +121,7 @@ def _get_all_leads_from_database_until_now():
             SELECT created FROM analytics_pageview p3 
             WHERE
                 p3.session_id = p1.session_id
+                AND u.email IS NOT NULL
                 AND p3.meta->>'PATH_INFO' = '/obrigado'
             ORDER BY 1
             LIMIT 1
@@ -90,6 +131,7 @@ def _get_all_leads_from_database_until_now():
             SELECT created FROM analytics_pageview p4 
             WHERE
                 p4.session_id = p1.session_id
+                AND u.email IS NOT NULL
                 AND (
                     p4.meta->>'PATH_INFO' = '/pagamento/pytools/obrigado/'
                     OR p4.meta->>'PATH_INFO' = '/pagamento/pytools/obrigado'
@@ -104,6 +146,7 @@ def _get_all_leads_from_database_until_now():
             SELECT created FROM analytics_pageview p5 
             WHERE
                 p5.session_id = p1.session_id
+                AND u.email IS NOT NULL
                 AND p5.meta->>'PATH_INFO' = '/modulos/python-birds/topicos/python-birds-motivacao'
             ORDER BY 1
             LIMIT 1
@@ -144,6 +187,9 @@ def _prepare_visits_to_save_in_gsheets():
         bought,
         activated,
     ) in _get_all_leads_from_database_until_now():
+
+        if email is not None and _email_is_valid(email) is False:
+            continue
 
         current_PATH_INFO = meta.get("PATH_INFO")
         current_session_id = session_id
