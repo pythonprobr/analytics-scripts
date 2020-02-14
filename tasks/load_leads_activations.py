@@ -9,8 +9,6 @@ def _get_seven_days_ago():
 
 
 def _get_all_activations_from_database_until_now():
-    import sqlalchemy as db
-
     from resources.database.models import DashboardTopicinteraction, CoreUser
     from resources.database import session
 

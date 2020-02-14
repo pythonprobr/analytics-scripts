@@ -20,9 +20,7 @@ def mocked_pagarme(mocker):
 
 def test_should_get_transactions_from_pagarme(mocked_pagarme):
     _get_transactions_from_pagarme(datetime.now())
-    assert mocked_pagarme.transaction.find_by.called_with(
-        _get_pagarme_filters(1, datetime.now())
-    )
+    assert mocked_pagarme.transaction.find_by.called_with(_get_pagarme_filters(1, datetime.now()))
 
 
 @pytest.fixture
@@ -39,14 +37,11 @@ def transaction():
 @pytest.fixture
 def mocked_get_transactions_from_pagarme(mocker, transaction):
     return mocker.patch(
-        "tasks.load_transactions._get_transactions_from_pagarme",
-        return_value=[transaction],
+        "tasks.load_transactions._get_transactions_from_pagarme", return_value=[transaction],
     )
 
 
-def test_should_prepare_data_to_be_loaded(
-    mocked_get_transactions_from_pagarme, transaction
-):
+def test_should_prepare_data_to_be_loaded(mocked_get_transactions_from_pagarme, transaction):
     assert _prepare_data_to_be_loaded() == [
         {
             "billing_address_object": "address",
@@ -92,4 +87,3 @@ def test_should_run_ok(mocker):
     assert m2.called
     assert m3.called
     assert m4.called
-

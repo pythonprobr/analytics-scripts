@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
 
-from flatten_json import flatten
-
 from resources.pagarme import pagarme
 from settings import TIME_ZONE
 from utils import log
@@ -24,9 +22,7 @@ def _get_transactions_from_pagarme(since):
     page_count = 0
     while True:
         page_count += 1
-        transactions = pagarme.transaction.find_by(
-            _get_pagarme_filters(page_count, since)
-        )
+        transactions = pagarme.transaction.find_by(_get_pagarme_filters(page_count, since))
         if not transactions:
             break
 

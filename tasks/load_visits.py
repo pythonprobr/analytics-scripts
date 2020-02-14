@@ -90,7 +90,7 @@ def _get_all_leads_from_database_until_now():
 
     statement = db.sql.text(
         """
-        SELECT 
+        SELECT
             p1.id
             , p1.session_id
             , u.email
@@ -103,12 +103,12 @@ def _get_all_leads_from_database_until_now():
             , CASE WHEN p5.created IS NOT NULL THEN 1 ELSE 0 END as activated
         FROM
             analytics_pageview p1
-        
+
         LEFT JOIN analytics_usersession s ON p1.session_id = s.id
         LEFT JOIN core_user u ON s.user_id = u.id
 
         LEFT OUTER JOIN LATERAL (
-            SELECT created FROM analytics_pageview p2 
+            SELECT created FROM analytics_pageview p2
             WHERE
                 p2.session_id = p1.session_id
                 AND u.email IS NOT NULL
@@ -116,9 +116,9 @@ def _get_all_leads_from_database_until_now():
             ORDER BY 1
             LIMIT 1
         ) as p2 ON TRUE
-        
+
         LEFT OUTER JOIN LATERAL (
-            SELECT created FROM analytics_pageview p3 
+            SELECT created FROM analytics_pageview p3
             WHERE
                 p3.session_id = p1.session_id
                 AND u.email IS NOT NULL
@@ -126,9 +126,9 @@ def _get_all_leads_from_database_until_now():
             ORDER BY 1
             LIMIT 1
         ) as p3 ON TRUE
-        
+
         LEFT OUTER JOIN LATERAL (
-            SELECT created FROM analytics_pageview p4 
+            SELECT created FROM analytics_pageview p4
             WHERE
                 p4.session_id = p1.session_id
                 AND u.email IS NOT NULL
@@ -141,9 +141,9 @@ def _get_all_leads_from_database_until_now():
             ORDER BY 1
             LIMIT 1
         ) as p4 ON TRUE
-        
+
         LEFT OUTER JOIN LATERAL (
-            SELECT created FROM analytics_pageview p5 
+            SELECT created FROM analytics_pageview p5
             WHERE
                 p5.session_id = p1.session_id
                 AND u.email IS NOT NULL
@@ -275,4 +275,3 @@ def run():
     _save_new_data_in_gsheets(new_data)
 
     log.info("Fim da tarefa.")
-

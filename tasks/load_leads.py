@@ -44,9 +44,7 @@ def _get_all_leads_from_database_until_now():
         session.query(CoreUser.date_joined, CoreUser.email, AnalyticsPageview.meta)
         .filter(CoreUser.date_joined >= _get_seven_days_ago())
         .join(AnalyticsUsersession, AnalyticsUsersession.user_id == CoreUser.id)
-        .join(
-            AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id
-        )
+        .join(AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id)
         .filter(
             AnalyticsPageview.meta["RAW_URI"]
             .astext.cast(db.types.Unicode)

@@ -26,9 +26,7 @@ class AuthGroup(Base):
     __tablename__ = "auth_group"
 
     id = Column(
-        Integer,
-        primary_key=True,
-        server_default=text("nextval('auth_group_id_seq'::regclass)"),
+        Integer, primary_key=True, server_default=text("nextval('auth_group_id_seq'::regclass)"),
     )
     name = Column(String(150), nullable=False, unique=True)
 
@@ -55,9 +53,7 @@ class CoreUser(Base):
     __tablename__ = "core_user"
 
     id = Column(
-        Integer,
-        primary_key=True,
-        server_default=text("nextval('auth_user_id_seq'::regclass)"),
+        Integer, primary_key=True, server_default=text("nextval('auth_user_id_seq'::regclass)"),
     )
     password = Column(String(128), nullable=False)
     last_login = Column(DateTime(True))
@@ -132,9 +128,7 @@ class AnalyticsUsersession(Base):
     created = Column(DateTime(True), nullable=False)
     updated = Column(DateTime(True), nullable=False)
     uuid = Column(UUID, nullable=False)
-    user_id = Column(
-        ForeignKey("core_user.id", deferrable=True, initially="DEFERRED"), index=True
-    )
+    user_id = Column(ForeignKey("core_user.id", deferrable=True, initially="DEFERRED"), index=True)
 
     user = relationship("CoreUser")
 
@@ -293,8 +287,7 @@ class DjangoAdminLog(Base):
     action_flag = Column(SmallInteger, nullable=False)
     change_message = Column(Text, nullable=False)
     content_type_id = Column(
-        ForeignKey("django_content_type.id", deferrable=True, initially="DEFERRED"),
-        index=True,
+        ForeignKey("django_content_type.id", deferrable=True, initially="DEFERRED"), index=True,
     )
     user_id = Column(
         ForeignKey("core_user.id", deferrable=True, initially="DEFERRED"),
@@ -340,8 +333,7 @@ class AnalyticsPageview(Base):
     updated = Column(DateTime(True), nullable=False)
     meta = Column(JSONB(astext_type=Text()), nullable=False)
     session_id = Column(
-        ForeignKey("analytics_usersession.id", deferrable=True, initially="DEFERRED"),
-        index=True,
+        ForeignKey("analytics_usersession.id", deferrable=True, initially="DEFERRED"), index=True,
     )
 
     session = relationship("AnalyticsUsersession")
@@ -422,9 +414,7 @@ class ModulesTopic(Base):
     __table_args__ = (CheckConstraint('"order" >= 0'),)
 
     id = Column(
-        Integer,
-        primary_key=True,
-        server_default=text("nextval('modules_topic_id_seq'::regclass)"),
+        Integer, primary_key=True, server_default=text("nextval('modules_topic_id_seq'::regclass)"),
     )
     order = Column(Integer, nullable=False, index=True)
     title = Column(String(50), nullable=False)
@@ -444,9 +434,7 @@ class ModulesTopic(Base):
 
 class DashboardTopicinteraction(Base):
     __tablename__ = "dashboard_topicinteraction"
-    __table_args__ = (
-        Index("dashboard_t_user_id_39ea24_idx", "user_id", "topic_id", "creation"),
-    )
+    __table_args__ = (Index("dashboard_t_user_id_39ea24_idx", "user_id", "topic_id", "creation"),)
 
     id = Column(
         Integer,
@@ -470,4 +458,3 @@ class DashboardTopicinteraction(Base):
 
     topic = relationship("ModulesTopic")
     user = relationship("CoreUser")
-

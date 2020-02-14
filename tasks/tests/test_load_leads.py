@@ -196,4 +196,3 @@ def test_should_run_ok(mocker):
     assert m2.called
     assert m3.called
     assert m4.called
-
