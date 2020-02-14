@@ -1,2 +1,2 @@
-cd /Users/moa/project/python-pro-analytics/git
-/Users/moa/.ve/python-pro-analytics/bin/python run.py
+cd /root/project
+/root/.pyenv/shims/python3.8 run.py
