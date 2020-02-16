@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import pytz
 from resources.pagarme import pagarme
 from settings import TIME_ZONE
 from utils import log
@@ -90,7 +91,11 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
         row["boleto_expiration_date"] = _prepare_datetime(row["boleto_expiration_date"])
 
         row["expired"] = 0
-        if expiration and expiration < datetime.now() and row["status"] != "paid":
+        if (
+            expiration
+            and expiration < datetime.now(tz=pytz.utc)
+            and row["status"] != "paid"
+        ):
             row["expired"] = 1
 
         row["offer"] = ""
