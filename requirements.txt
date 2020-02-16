@@ -1,6 +1,7 @@
- pagarme-python
- psycopg2-binary
- pygsheets
- python-decouple
- pytz
- sqlalchemy
+pagarme-python
+psycopg2-binary
+pygsheets
+python-decouple
+python-telegram-bot
+pytz
+sqlalchemy
