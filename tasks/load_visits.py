@@ -72,7 +72,6 @@ def _fetch_query_string(query_string):
 
 
 def _get_created():
-    # return datetime(2020, 2, 9)
     # return datetime(2020, 1, 1)
     return datetime.now() - timedelta(days=7)
 
@@ -213,6 +212,7 @@ def _prepare_visits_to_save_in_gsheets():
             id_,
             created,
             email,
+            current_PATH_INFO,
             visited_landing_page,
             visited_oto,
             subscribed,
