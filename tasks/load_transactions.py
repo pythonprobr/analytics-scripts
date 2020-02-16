@@ -22,7 +22,9 @@ def _get_transactions_from_pagarme(since):
     page_count = 0
     while True:
         page_count += 1
-        transactions = pagarme.transaction.find_by(_get_pagarme_filters(page_count, since))
+        transactions = pagarme.transaction.find_by(
+            _get_pagarme_filters(page_count, since)
+        )
         if not transactions:
             break
 
@@ -36,8 +38,8 @@ def _str_to_datetime(creation):
 
     date = creation.split("T")[0]
     time = creation.split("T")[1].split(".")[0]
-    creation = f"{date} {time}"
-    return datetime.strptime(creation, "%Y-%m-%d %H:%M:%S")
+    creation = f"{date} {time} +0000"
+    return datetime.strptime(creation, "%Y-%m-%d %H:%M:%S %z")
 
 
 def _prepare_datetime(creation):
