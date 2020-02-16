@@ -153,7 +153,7 @@ def _get_all_leads_from_database_until_now():
         ) as p5 ON TRUE
 
         WHERE
-            p1.meta->>'PATH_INFO' = '/curso-de-python-gratis'
+            p1.meta->>'PATH_INFO' LIKE '/curso-de-python-gratis%'
             AND p1.created >= :created
 
         ORDER BY p1.session_id, p1.created ASC
