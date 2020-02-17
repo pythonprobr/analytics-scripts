@@ -11,7 +11,7 @@ TELEGRAM_GROUP_CHAT_ID = -355393771
 
 
 def _get_date_delta():
-    # return datetime(2019, 12, 1)
+    # return datetime(2020, 2, 16)
     return datetime.now() - timedelta(minutes=5)
 
 
@@ -63,6 +63,7 @@ def _send_messages(transactions):
         if (
             not transaction["items"]
             or "pytools" not in transaction["items"][0]["id"].lower()
+            or transaction["status"] not in ("authorized", "paid", "waiting_payment")
         ):
             continue
 
