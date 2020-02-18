@@ -26,6 +26,7 @@ def _fetch_query_string(query_string):
         "plantao-python-pro",
         "youtube-card",
         "python-brasil",
+        "whatsapp",
     )
 
     PAID_SOURCES = (
