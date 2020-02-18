@@ -79,10 +79,12 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
             if key in needed_keys:
                 row[key] = value
 
-            if key == "customer":
-                row["email"] = transaction["customer"]["email"]
-                row["name"] = transaction["customer"]["name"]
-                row["phone_number"] = transaction["customer"]["phone_numbers"][0]
+            row["email"] = transaction["customer"]["email"]
+            row["name"] = transaction["customer"]["name"]
+            row["phone_number"] = transaction["customer"]["phone_numbers"][0]
+
+        if "@python.pro.br" in row["email"]:
+            continue
 
         expiration = _str_to_datetime(row["boleto_expiration_date"])
 
@@ -110,6 +112,12 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
             elif "membership-" in row["items"][0]["id"]:
                 row["offer"] = "membership"
 
+            row["user_id"] = ""
+            if "pytools" in row["offer"]:
+                id_ = row["items"][0]["id"].split("-")[-1]
+                if not id_ == "None":
+                    row["user_id"] = id_
+
         del row["items"]
         transactions.append(row)
     return transactions
@@ -134,8 +142,8 @@ def _save_new_data_in_gsheets(data):
 def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
     data_to_gsheets = []
 
-    # headers = list(data_from_api[0].keys())
-    # data_to_gsheets.append(headers)
+    headers = list(data_from_api[0].keys())
+    data_to_gsheets.append(headers)
 
     data_from_api = {item["id"]: item for item in data_from_api}
 
