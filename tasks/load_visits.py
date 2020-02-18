@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qsl
 
 from settings import TIME_ZONE
 from utils import log
+
+
+def _get_created():
+    # return datetime(2020, 1, 1)
+    return datetime.now() - timedelta(days=1)
 
 
 def _extract_domain(uri):
@@ -14,21 +19,6 @@ def _extract_domain(uri):
 
 
 def _fetch_query_string(query_string):
-    ORGANIC_SOURCES = (
-        "youtube-moacir",
-        "youtube",
-        "anchor",
-        "twitter",
-        "gmail",
-        "facebook",
-        "blog",
-        "cafe-com-python",
-        "plantao-python-pro",
-        "youtube-card",
-        "python-brasil",
-        "whatsapp",
-    )
-
     PAID_SOURCES = (
         "rede-de-pesquisa",
         "youtube-ads",
@@ -42,39 +32,24 @@ def _fetch_query_string(query_string):
         "search": "trafego-pago",
     }
 
-    items = {}
-    if "&" in query_string and "=" in query_string:
-        for item in query_string.split("&"):
+    items = dict(parse_qsl(query_string))
 
-            try:
-                key, value = item.split("=") if "utm_" in item else (None, None)
-            except ValueError as e:
-                log.error(f"{e}, {query_string}")
-                return {}
+    for key, value in MAP_SOURCES.items():
+        if key == items.get("utm_source"):
+            items["utm_source"] = value
 
-            if key and value:
-                items[key] = value
+    for key, value in MAP_MEDIUM.items():
+        if key == items.get("utm_medium"):
+            items["utm_medium"] = value
 
-        for key, value in MAP_SOURCES.items():
-            if key == items.get("utm_source"):
-                items["utm_source"] = value
+    items["utm_medium"] = "trafego-organico"
+    if items.get("utm_source") in PAID_SOURCES:
+        items["utm_medium"] = "trafego-pago"
 
-        for key, value in MAP_MEDIUM.items():
-            if key == items.get("utm_medium"):
-                items["utm_medium"] = value
-
-        if items["utm_source"] in ORGANIC_SOURCES:
-            items["utm_medium"] = "trafego-organico"
-
-        if items["utm_source"] in PAID_SOURCES:
-            items["utm_medium"] = "trafego-pago"
+    if "utm_term" in items:
+        items["utm_term"] = "'" + items["utm_term"]
 
     return items
-
-
-def _get_created():
-    # return datetime(2020, 1, 1)
-    return datetime.now() - timedelta(days=7)
 
 
 def _email_is_valid(email):
@@ -154,7 +129,10 @@ def _get_all_leads_from_database_until_now():
         ) as p5 ON TRUE
 
         WHERE
-            p1.meta->>'PATH_INFO' LIKE '/curso-de-python-gratis%'
+            (
+                p1.meta->>'PATH_INFO' LIKE '%curso-de-python-gratis%'
+                OR p1.meta->>'PATH_INFO' = '/'
+            )
             AND p1.created >= :created
 
         ORDER BY p1.session_id, p1.created ASC
@@ -190,7 +168,9 @@ def _prepare_visits_to_save_in_gsheets():
         activated,
     ) in _get_all_leads_from_database_until_now():
 
-        if email is not None and _email_is_valid(email) is False:
+        is_invalid_email = email is not None and _email_is_valid(email) is False
+        is_invalid_visit = meta["PATH_INFO"] == "/" and visited_oto == 0
+        if is_invalid_email or is_invalid_visit:
             continue
 
         current_PATH_INFO = meta.get("PATH_INFO")
