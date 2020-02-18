@@ -182,7 +182,7 @@ def _prepare_visits_to_save_in_gsheets():
             duplicated += 1
             continue
 
-        if user_id in user_ids:
+        if user_id is not None and user_id in user_ids:
             duplicated += 1
             continue
 
