@@ -148,9 +148,9 @@ def _generate_data_with_new_transactions(data_from_api, data_from_gsheets):
     data_from_api = {item["id"]: item for item in data_from_api}
 
     for row in data_from_gsheets:
-        transaction_id = row[8]
+        transaction_id = row[4]
         try:
-            transaction_id = int(row[8])
+            transaction_id = int(row[4])
         except ValueError:
             pass
 
