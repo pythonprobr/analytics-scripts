@@ -149,7 +149,7 @@ def _prepare_created(date_joined):
 
 def _prepare_visits_to_save_in_gsheets():
     rows = []
-    ids = []
+    user_ids = []
     last_PATH_INFO = ""
     last_session_id = 0
     duplicated = 0
@@ -182,10 +182,14 @@ def _prepare_visits_to_save_in_gsheets():
             duplicated += 1
             continue
 
+        if user_id in ids:
+            duplicated += 1
+            continue
+
+        user_ids.append(user_id)
         last_PATH_INFO = current_PATH_INFO
         last_session_id = current_session_id
 
-        ids.append(id_)
         created = _prepare_created(created)
 
         query_string = meta.get("QUERY_STRING") if meta.get("QUERY_STRING") else ""
