@@ -94,6 +94,7 @@ def _get_all_leads_from_database_until_now():
             p1.id
             , p1.session_id
             , u.email
+            , u.id
             , p1.created
             , p1.meta
             , 1 as visited_landing_page
@@ -179,6 +180,7 @@ def _prepare_visits_to_save_in_gsheets():
         id_,
         session_id,
         email,
+        user_id,
         created,
         meta,
         visited_landing_page,
@@ -212,6 +214,7 @@ def _prepare_visits_to_save_in_gsheets():
         row = [
             id_,
             created,
+            user_id,
             email,
             current_PATH_INFO,
             visited_landing_page,
