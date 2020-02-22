@@ -54,7 +54,7 @@ def _prepare_leads_to_save_in_gsheets():
         emails.append(email)
         date_joined = _prepare_date_joined(date_joined)
 
-        row = [date_joined, email]
+        row = [id_, date_joined, email]
 
         utms = _fetch_query_string(meta["QUERY_STRING"])
         row.append(utms.get("utm_source"))
@@ -62,7 +62,6 @@ def _prepare_leads_to_save_in_gsheets():
         row.append(utms.get("utm_campaign"))
         row.append(utms.get("utm_term"))
         row.append(utms.get("utm_content"))
-        row.append(id_)
 
         rows.append(row)
     return rows
