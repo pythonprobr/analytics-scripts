@@ -2,32 +2,12 @@ from datetime import datetime, timedelta
 
 from settings import TIME_ZONE
 from utils import log
+from tasks.load_visits import _fetch_query_string
 
 
 def _get_seven_days_ago():
     # return datetime(2019, 12, 1)
     return datetime.now() - timedelta(days=7)
-
-
-def _fetch_query_string(query_string):
-    items = {}
-    if "&" in query_string and "=" in query_string:
-        for item in query_string.split("&"):
-            key, value = item.split("=") if "utm_" in item else (None, None)
-
-            if key and value:
-                items[key] = value
-
-        if items.get("utm_source") == "google-ads":
-            items["utm_source"] = "rede-de-pesquisa"
-
-            if items.get("utm_medium") == "search":
-                items["utm_medium"] = "trafego-pago"
-
-        if items.get("utm_medium") == "pago":
-            items["utm_medium"] = "trafego-pago"
-
-    return items
 
 
 def _get_all_leads_from_database_until_now():
