@@ -4,6 +4,11 @@ from settings import TIME_ZONE
 from utils import log
 
 
+def _get_seven_days_ago():
+    # return datetime(2019, 12, 1)
+    return datetime.now() - timedelta(days=7)
+
+
 def _fetch_query_string(query_string):
     items = {}
     if "&" in query_string and "=" in query_string:
@@ -25,11 +30,6 @@ def _fetch_query_string(query_string):
     return items
 
 
-def _get_seven_days_ago():
-    # return datetime(2019, 12, 1)
-    return datetime.now() - timedelta(days=7)
-
-
 def _get_all_leads_from_database_until_now():
     import sqlalchemy as db
 
@@ -41,10 +41,14 @@ def _get_all_leads_from_database_until_now():
     from resources.database import session
 
     qs = (
-        session.query(CoreUser.date_joined, CoreUser.email, AnalyticsPageview.meta)
+        session.query(
+            CoreUser.date_joined, CoreUser.email, CoreUser.id, AnalyticsPageview.meta
+        )
         .filter(CoreUser.date_joined >= _get_seven_days_ago())
         .join(AnalyticsUsersession, AnalyticsUsersession.user_id == CoreUser.id)
-        .join(AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id)
+        .join(
+            AnalyticsPageview, AnalyticsPageview.session_id == AnalyticsUsersession.id
+        )
         .filter(
             AnalyticsPageview.meta["RAW_URI"]
             .astext.cast(db.types.Unicode)
@@ -63,7 +67,7 @@ def _prepare_date_joined(date_joined):
 def _prepare_leads_to_save_in_gsheets():
     rows = []
     emails = []
-    for date_joined, email, meta in _get_all_leads_from_database_until_now().all():
+    for date_joined, email, id_, meta in _get_all_leads_from_database_until_now().all():
         if email in emails:
             continue
 
@@ -78,6 +82,7 @@ def _prepare_leads_to_save_in_gsheets():
         row.append(utms.get("utm_campaign"))
         row.append(utms.get("utm_term"))
         row.append(utms.get("utm_content"))
+        row.append(id_)
 
         rows.append(row)
     return rows
