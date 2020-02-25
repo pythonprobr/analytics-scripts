@@ -79,12 +79,13 @@ def _get_gsheets_current_data():
 
 
 def _generate_data_with_new_emails(leads_from_database, data_from_gsheets):
-    current_emails = [item[1] for item in data_from_gsheets]
+    current_ids = [item[0] for item in data_from_gsheets]
     for lead in leads_from_database:
-        email = lead[1]
-        if email in current_emails:
+        id_ = str(lead[0])
+        if id_ in current_ids:
             continue
 
+        lead[6] = "'" + lead[6]
         data_from_gsheets.append(lead)
 
     return data_from_gsheets
