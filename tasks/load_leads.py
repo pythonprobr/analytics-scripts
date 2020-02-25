@@ -85,7 +85,7 @@ def _generate_data_with_new_emails(leads_from_database, data_from_gsheets):
         if id_ in current_ids:
             continue
 
-        lead[6] = "'" + lead[6]
+        lead[6] = f"'{lead[6]}"
         data_from_gsheets.append(lead)
 
     return data_from_gsheets
