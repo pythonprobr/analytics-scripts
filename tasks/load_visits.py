@@ -222,7 +222,7 @@ def _prepare_visits_to_save_in_gsheets():
 def _get_worksheet():
     from resources.gsheets import spreadsheet
 
-    return spreadsheet.worksheet_by_title("Visitas")
+    return spreadsheet.worksheet_by_title("PA | Visitas")
 
 
 def _get_gsheets_current_data():

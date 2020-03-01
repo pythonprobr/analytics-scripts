@@ -126,7 +126,7 @@ def _prepare_data_to_be_loaded(since=_get_seven_days_ago()):
 def _get_transactions_worksheet():
     from resources.gsheets import spreadsheet
 
-    return spreadsheet.worksheet_by_title("Transações")
+    return spreadsheet.worksheet_by_title("PA | Transações")
 
 
 def _get_gsheets_current_data():

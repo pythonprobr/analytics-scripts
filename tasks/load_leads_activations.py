@@ -47,7 +47,7 @@ def _prepare_activations_to_save_in_gsheets():
 def _get_worksheet():
     from resources.gsheets import spreadsheet
 
-    return spreadsheet.worksheet_by_title("Ativações")
+    return spreadsheet.worksheet_by_title("PA | Ativações")
 
 
 def _get_gsheets_current_data():

@@ -70,7 +70,7 @@ def _prepare_leads_to_save_in_gsheets():
 def _get_leads_worksheet():
     from resources.gsheets import spreadsheet
 
-    return spreadsheet.worksheet_by_title("Leads")
+    return spreadsheet.worksheet_by_title("PA | Leads")
 
 
 def _get_gsheets_current_data():
