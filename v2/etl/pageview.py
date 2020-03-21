@@ -30,7 +30,6 @@ class ETLPageView(ETL):
                 )
                 AND p1.created >= :created
             ORDER BY p1.created DESC
-            LIMIT 100
             ;
             """
         )
