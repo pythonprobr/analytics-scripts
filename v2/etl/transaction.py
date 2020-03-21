@@ -48,7 +48,7 @@ class ETLTransaction(ETL):
                 elif "membership-" in item["items"][0]["id"]:
                     offer = "membership"
 
-                if "pytools" in offer:
+                if offer is not None and "pytools" in offer:
                     id_ = item["items"][0]["id"].split("-")[-1]
                     if not id_ == "None":
                         user_id = id_
