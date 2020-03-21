@@ -47,7 +47,7 @@ def _fetch_query_string(query_string):
         items["utm_medium"] = "trafego-pago"
 
     if "utm_term" in items:
-        items["utm_term"] = "'" + items["utm_term"]
+        items["utm_term"] = items["utm_term"]
 
     return items
 
