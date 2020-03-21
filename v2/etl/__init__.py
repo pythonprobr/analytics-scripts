@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils import log
 
 
 class ETL:
@@ -15,7 +16,9 @@ class ETL:
         raise NotImplementedError
 
     def run(self):
-        self.extract()
-        self.transform()
-        self.load()
-
+        try:
+            self.extract()
+            self.transform()
+            self.load()
+        except Exception as e:
+            log.exception(e)
