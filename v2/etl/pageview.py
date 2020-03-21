@@ -45,7 +45,7 @@ class ETLPageView(ETL):
                 "created": created,
                 "session_id": session_id,
                 "path_info": path_info,
-                "query_string": query_string,
+                "query_string": query_string[:1000],
                 "utm_source": items.get("utm_source"),
                 "utm_medium": items.get("utm_medium"),
                 "utm_campaign": items.get("utm_campaign"),
@@ -67,7 +67,7 @@ class ETLPageView(ETL):
             for item in self.data
             if item["session_id"] in current_session_ids
         ]
-        
+
         log.info(f"PageView| Removendo {len(loaded_ids)} registros existentes...")
         session.execute(PageView.__table__.delete().where(PageView.id.in_(loaded_ids)))
 
