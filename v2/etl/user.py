@@ -17,12 +17,14 @@ class ETLUser(ETL):
                 core_user.id as id
                 , core_user.email as email
             FROM core_user
+            WHERE
+                date_joined >= :created
             ORDER BY 
                 date_joined DESC
             """
         )
 
-        self.data = connection.execute(statement)
+        self.data = connection.execute(statement, created=self.date_limit)
 
     def transform(self):
         pass

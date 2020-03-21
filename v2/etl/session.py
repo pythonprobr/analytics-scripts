@@ -17,12 +17,14 @@ class ETLSession(ETL):
                 id
                 , user_id
             FROM analytics_usersession
+            WHERE
+                created >= :created
             ORDER BY 
                 id DESC
             """
         )
 
-        self.data = connection.execute(statement)
+        self.data = connection.execute(statement, created=self.date_limit)
 
     def transform(self):
         pass
