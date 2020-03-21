@@ -10,9 +10,9 @@ from settings import ANALYTICS_DATABASE_URL
 
 engine = db.create_engine(ANALYTICS_DATABASE_URL)
 
-# from v2.models import Base
+from v2.models import Base
 
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 
 connection = engine.connect()
 
