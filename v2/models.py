@@ -79,10 +79,16 @@ class CampaignType(Base):
 
 class CampaignPerformance(Base):
     __tablename__ = "campaign_performance"
+    __table_args__ = (
+        sa.UniqueConstraint(
+            "campaign_id", "source_id", "created", name="unique_component_commit"
+        ),
+    )
 
     id = sa.Column(sa.Integer, primary_key=True)
+    campaign_id = sa.Column(sa.BigInteger, index=True)
+    source_id = sa.Column(sa.ForeignKey("campaign_source.id"), index=True)
     created = sa.Column(sa.DateTime(True), nullable=False)
     name = sa.Column(sa.String(254))
-    source_id = sa.Column(sa.ForeignKey("campaign_source.id"), index=True)
     type_id = sa.Column(sa.ForeignKey("campaign_type.id"), index=True)
     cost = sa.Column(sa.Numeric(10, 2))
