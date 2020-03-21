@@ -14,7 +14,7 @@ from v2.etl.campaign import ETLCampaign
 
 date_until = datetime(2020, 3, 21)
 if "--full" in sys.argv:
-    date_until = datetime(2019, 12, 1)
+    date_until = datetime(2010, 12, 1)
 
 user = ETLUser(date_until)
 session = ETLSession(date_until)
