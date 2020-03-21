@@ -49,38 +49,35 @@ class ETLProgress(ETL):
         ) in self.data:
             percentile_finished = total_watched_time / topic_duration
             percentile_finished = 1 if percentile_finished > 1 else percentile_finished
-            row = [
-                user_id,
-                last_interaction,
-                percentile_finished,
-            ]
+            row = {
+                "user_id": user_id,
+                "last_interaction": last_interaction,
+                "progress": percentile_finished,
+            }
             rows.append(row)
         self.data = rows
 
     def load(self):
         from v2.database import session
 
-        loaded_users_ids = [user_id for user_id, _, _ in self.data]
-        log.info(
-            f"UserProgress| Removendo {len(loaded_users_ids)} registros existentes..."
-        )
-        # session.query().filter(UserProgress.user_id.in_(loaded_users_ids)).delete()
+        loaded_user_ids = [item["user_id"] for item in self.data]
+        qs = session.query(User.id).filter(User.id.in_(loaded_user_ids))
+        current_user_ids = [item[0] for item in qs]
+
+        loaded_ids = [
+            item["user_id"] for item in self.data if item["user_id"] in current_user_ids
+        ]
+
+        log.info(f"UserProgress| Removendo {len(loaded_ids)} registros existentes...")
         session.execute(
-            UserProgress.__table__.delete().where(
-                UserProgress.user_id.in_(loaded_users_ids)
-            )
+            UserProgress.__table__.delete().where(UserProgress.user_id.in_(loaded_ids))
         )
 
-        items_to_add = []
-        for user_id, last_interaction, percentile_finished in self.data:
-            items_to_add.append(
-                UserProgress(
-                    last_interaction=last_interaction,
-                    user_id=user_id,
-                    progress=percentile_finished,
-                )
-            )
-
+        items_to_add = [
+            UserProgress(**item)
+            for item in self.data
+            if item["user_id"] in current_user_ids
+        ]
         log.info(
             f"UserProgress| Inserindo {len(items_to_add)} novos registros no analytics..."
         )

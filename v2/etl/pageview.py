@@ -67,6 +67,7 @@ class ETLPageView(ETL):
             for item in self.data
             if item["session_id"] in current_session_ids
         ]
+        
         log.info(f"PageView| Removendo {len(loaded_ids)} registros existentes...")
         session.execute(PageView.__table__.delete().where(PageView.id.in_(loaded_ids)))
 

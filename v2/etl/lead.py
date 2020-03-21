@@ -27,26 +27,25 @@ class ETLLead(ETL):
         self.data = connection.execute(statement, created=self.date_limit)
 
     def transform(self):
-        pass
+        self.data = [item for item in self.data]
 
     def load(self):
         from v2.database import session
 
-        sessions = [item for item in self.data]
-        loaded_users_ids = [item["user_id"] for item in sessions]
+        loaded_user_ids = [item["user_id"] for item in self.data]
+        qs = session.query(User.id).filter(User.id.in_(loaded_user_ids))
+        current_user_ids = [item[0] for item in qs]
 
-        log.info(f"Lead| Verificando quais dos {len(sessions)} existem no analytics...")
-        qs = session.query(Lead.id).filter(Lead.user_id.in_(loaded_users_ids))
-        existing_ids = [id[0] for id in qs.all()]
+        loaded_ids = [
+            item["user_id"] for item in self.data if item["user_id"] in current_user_ids
+        ]
 
-        log.info(f"Lead| Ignorando {len(existing_ids)} registros existentes...")
-        items_to_add = []
-        for item in sessions:
-            if item["user_id"] not in existing_ids:
-                items_to_add.append(
-                    Lead(created=item["created"], user_id=item["user_id"])
-                )
+        log.info(f"Lead| Removendo {len(loaded_ids)} registros existentes...")
+        session.execute(Lead.__table__.delete().where(Lead.user_id.in_(loaded_ids)))
 
+        items_to_add = [
+            Lead(**item) for item in self.data if item["user_id"] in current_user_ids
+        ]
         log.info(f"Lead| Inserindo {len(items_to_add)} novos registros no analytics...")
         session.bulk_save_objects(items_to_add)
         session.commit()

@@ -2,7 +2,7 @@ import sqlalchemy as db
 
 from utils import log
 from v2.etl import ETL
-from v2.models import Session, User
+from v2.models import Session, User, PageView
 
 
 class ETLSession(ETL):
@@ -27,33 +27,30 @@ class ETLSession(ETL):
         self.data = connection.execute(statement, created=self.date_limit)
 
     def transform(self):
-        pass
+        self.data = [
+            {"id": item["id"], "user_id": item["user_id"],} for item in self.data
+        ]
 
     def load(self):
         from v2.database import session
 
-        sessions = [item for item in self.data]
-        loaded_ids = [item["id"] for item in sessions]
-        loaded_users_ids = [item["id"] for item in sessions]
+        loaded_user_ids = [item["user_id"] for item in self.data]
+        qs = session.query(User.id).filter(User.id.in_(loaded_user_ids))
+        current_user_ids = [item[0] for item in qs]
 
-        log.info(
-            f"Session| Verificando quais dos {len(sessions)} existem no analytics..."
+        loaded_ids = [
+            item["id"] for item in self.data if item["user_id"] in current_user_ids
+        ]
+
+        log.info(f"Session| Removendo {len(loaded_ids)} registros existentes...")
+        session.execute(
+            PageView.__table__.delete().where(PageView.session_id.in_(loaded_ids))
         )
-        qs = session.query(Session.id).filter(Session.id.in_(loaded_ids))
-        existing_ids = [id[0] for id in qs.all()]
+        session.execute(Session.__table__.delete().where(Session.id.in_(loaded_ids)))
 
-        log.info(f"Session| Verificando usuários que existem no analytics...")
-        qs = session.query(User.id).filter(User.id.in_(loaded_users_ids))
-        existing_users_ids = [id[0] for id in qs.all()]
-
-        log.info(f"Session| Ignorando {len(existing_ids)} registros existentes...")
-        items_to_add = []
-        for item in sessions:
-            if item["id"] not in existing_ids and (
-                item["user_id"] is None or item["user_id"] in existing_users_ids
-            ):
-                items_to_add.append(Session(id=item["id"], user_id=item["user_id"]))
-
+        items_to_add = [
+            Session(**item) for item in self.data if item["user_id"] in current_user_ids
+        ]
         log.info(
             f"Session| Inserindo {len(items_to_add)} novos registros no analytics..."
         )
