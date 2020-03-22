@@ -43,11 +43,11 @@ class PageView(Base):
     session_id = sa.Column(sa.ForeignKey("session.id"), index=True)
     path_info = sa.Column(sa.String(1016))
     query_string = sa.Column(sa.String(1016))
-    utm_source = sa.Column(sa.String(254))
-    utm_medium = sa.Column(sa.String(254))
-    utm_campaign = sa.Column(sa.String(254))
-    utm_term = sa.Column(sa.String(254))
-    utm_content = sa.Column(sa.String(254))
+    utm_source = sa.Column(sa.String(1016))
+    utm_medium = sa.Column(sa.String(1016))
+    utm_campaign = sa.Column(sa.String(1016))
+    utm_term = sa.Column(sa.String(1016))
+    utm_content = sa.Column(sa.String(1016))
 
 
 class Transaction(Base):
@@ -89,6 +89,6 @@ class CampaignPerformance(Base):
     campaign_id = sa.Column(sa.BigInteger, index=True)
     source_id = sa.Column(sa.ForeignKey("campaign_source.id"), index=True)
     created = sa.Column(sa.DateTime(True), nullable=False)
-    name = sa.Column(sa.String(254))
+    name = sa.Column(sa.String(1016))
     type_id = sa.Column(sa.ForeignKey("campaign_type.id"), index=True)
     cost = sa.Column(sa.Numeric(10, 2))
