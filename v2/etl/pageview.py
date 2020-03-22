@@ -46,11 +46,11 @@ class ETLPageView(ETL):
                 "session_id": session_id,
                 "path_info": path_info,
                 "query_string": query_string[:1000],
-                "utm_source": items.get("utm_source"),
-                "utm_medium": items.get("utm_medium"),
-                "utm_campaign": items.get("utm_campaign"),
-                "utm_term": items.get("utm_term"),
-                "utm_content": items.get("utm_content"),
+                "utm_source": items.get("utm_source", "")[:1000],
+                "utm_medium": items.get("utm_medium", "")[:1000],
+                "utm_campaign": items.get("utm_campaign", "")[:1000],
+                "utm_term": items.get("utm_term", "")[:1000],
+                "utm_content": items.get("utm_content", "")[:1000],
             }
             rows.append(row)
         self.data = rows
