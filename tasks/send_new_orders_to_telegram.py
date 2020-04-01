@@ -60,10 +60,14 @@ def _send_messages(transactions):
     bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
     for transaction in transactions:
-        if (
-            not transaction["items"]
-            or "pytools" not in transaction["items"][0]["id"].lower()
-            or transaction["status"] not in ("authorized", "paid", "waiting_payment")
+        if "pytools" not in transaction["items"][0]["id"].lower():
+            if "membership" not in transaction["items"][0]["id"].lower():
+                continue
+
+        if not transaction["items"] or transaction["status"] not in (
+            "authorized",
+            "paid",
+            "waiting_payment",
         ):
             continue
 
