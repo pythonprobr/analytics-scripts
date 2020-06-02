@@ -48,11 +48,18 @@ class ETLSession(ETL):
         )
         session.execute(Session.__table__.delete().where(Session.id.in_(loaded_ids)))
 
-        items_to_add = [
-            Session(**item) for item in self.data if item["user_id"] in current_user_ids
-        ]
-        log.info(
-            f"Session| Inserindo {len(items_to_add)} novos registros no analytics..."
-        )
-        session.bulk_save_objects(items_to_add)
+        count = 0
+        for item in self.data:
+            if item["user_id"] not in current_user_ids:
+                continue
+
+            row = Session(**item)
+            session.add(row)
+
+            count += 1
+            if count % 500 == 0:
+                log.info(f"Session| Inserindo {count} novos registros no analytics...")
+                session.commit()
+
+        log.info(f"Session| Inserindo {count} novos registros no analytics...")
         session.commit()

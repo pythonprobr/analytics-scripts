@@ -12,9 +12,9 @@ from v2.etl.pageview import ETLPageView
 from v2.etl.transaction import ETLTransaction
 from v2.etl.campaign import ETLCampaign
 
-date_until = datetime.now() - timedelta(days=1)
+date_until = datetime.now() - timedelta(seconds=60 * 30)
 if "--full" in sys.argv:
-    date_until = datetime(2010, 12, 1)
+    date_until = datetime(2020, 5, 1)
 
 user = ETLUser(date_until)
 session = ETLSession(date_until)

@@ -17,8 +17,6 @@ class ETLUser(ETL):
                 core_user.id as id
                 , core_user.email as email
             FROM core_user
-            WHERE
-                date_joined >= :created
             ORDER BY 
                 date_joined DESC
             """
@@ -40,11 +38,15 @@ class ETLUser(ETL):
         existing_ids = [id[0] for id in qs.all()]
 
         log.info(f"Ignorando {len(existing_ids)} registros existentes...")
-        items_to_add = []
+        items_to_add = 0
         for item in users:
             if item["id"] not in existing_ids:
-                items_to_add.append(User(id=item["id"], email=item["email"]))
+                row = User(id=item["id"], email=item["email"])
+                session.add(row)
+                items_to_add += 1
 
-        log.info(f"Inserindo {len(items_to_add)} novos usuários no analytics...")
-        session.bulk_save_objects(items_to_add)
+                if items_to_add % 500 == 0:
+                    log.info(f"Inserindo {items_to_add} novos usuários no analytics...")
+                    session.commit()
+        log.info(f"{items_to_add} novos usuários inseridos no analytics...")
         session.commit()

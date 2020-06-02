@@ -8,10 +8,10 @@ services:
     volumes:
       - ../pgdata:/var/lib/postgresql/data
     environment:
-      - COMPOSE_PROJECT_NAME=plataforma
+      - COMPOSE_PROJECT_NAME=analytics
       - LC_ALL=C.UTF-8
-      - POSTGRES_PASSWORD=plataforma
-      - POSTGRES_USER=plataforma
+      - POSTGRES_PASSWORD=analytics
+      - POSTGRES_USER=analytics
     ports:
       - 5432:5432
   
