@@ -34,14 +34,7 @@ class ETLSession(ETL):
     def load(self):
         from v2.database import session
 
-        loaded_user_ids = [item["user_id"] for item in self.data]
-        qs = session.query(User.id).filter(User.id.in_(loaded_user_ids))
-        current_user_ids = [item[0] for item in qs]
-
-        loaded_ids = [
-            item["id"] for item in self.data if item["user_id"] in current_user_ids
-        ]
-
+        loaded_ids = [item["id"] for item in self.data]
         log.info(f"Session| Removendo {len(loaded_ids)} registros existentes...")
         session.execute(
             PageView.__table__.delete().where(PageView.session_id.in_(loaded_ids))
@@ -50,9 +43,6 @@ class ETLSession(ETL):
 
         count = 0
         for item in self.data:
-            if item["user_id"] not in current_user_ids:
-                continue
-
             row = Session(**item)
             session.add(row)
 
