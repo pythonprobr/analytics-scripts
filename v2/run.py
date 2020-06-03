@@ -11,6 +11,7 @@ from v2.etl.progress import ETLProgress
 from v2.etl.pageview import ETLPageView
 from v2.etl.transaction import ETLTransaction
 from v2.etl.campaign import ETLCampaign
+from tasks.send_new_orders_to_telegram import run as send_new_orders_to_telegram_run
 
 date_until = datetime.now() - timedelta(seconds=60 * 30)
 if "--full" in sys.argv:
@@ -26,6 +27,7 @@ campaign = ETLCampaign(date_until)
 
 log.info(f"Iniciando carga. Data limite: {date_until}...")
 
+send_new_orders_to_telegram_run()
 user.run()
 session.run()
 pageview.run()
