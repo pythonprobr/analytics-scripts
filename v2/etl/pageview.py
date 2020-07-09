@@ -71,13 +71,33 @@ class ETLPageView(ETL):
         log.info(f"PageView| Removendo {len(loaded_ids)} registros existentes...")
         session.execute(PageView.__table__.delete().where(PageView.id.in_(loaded_ids)))
 
+        # count = 0
+        # for item in self.data:
+        #     row = Session(**item)
+        #     session.add(row)
+
+        #     count += 1
+        #     if count % 500 == 0:
+        #         log.info(f"Session| Inserindo {count} novos registros no analytics...")
+        #         session.commit()
+
+        # log.info(f"Session| Inserindo {count} novos registros no analytics...")
+        # session.commit()
+
         items_to_add = [
             PageView(**item)
             for item in self.data
             if item["session_id"] in current_session_ids
         ]
-        log.info(
-            f"PageView| Inserindo {len(items_to_add)} novos registros no analytics..."
-        )
-        session.bulk_save_objects(items_to_add)
+
+        count = 0
+        for item in items_to_add:
+            session.add(item)
+
+            count += 1
+            if count % 1000 == 0:
+                log.info(f"PageView| Inserindo {count} novos registros no analytics...")
+                session.commit()
+
+        log.info(f"PageView| Inserindo {count} novos registros no analytics...")
         session.commit()
