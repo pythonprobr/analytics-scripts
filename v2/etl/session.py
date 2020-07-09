@@ -47,7 +47,7 @@ class ETLSession(ETL):
             session.add(row)
 
             count += 1
-            if count % 500 == 0:
+            if count % 1000 == 0:
                 log.info(f"Session| Inserindo {count} novos registros no analytics...")
                 session.commit()
 
