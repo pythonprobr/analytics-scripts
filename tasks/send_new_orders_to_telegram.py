@@ -63,7 +63,8 @@ def _send_messages(transactions):
         if "pytools" not in transaction["items"][0]["id"].lower():
             if "membership" not in transaction["items"][0]["id"].lower():
                 if "webdev" not in transaction["items"][0]["id"].lower():
-                    continue
+                    if "bootcamp" not in transaction["items"][0]["id"].lower():
+                        continue
 
         if not transaction["items"] or transaction["status"] not in (
             "authorized",
