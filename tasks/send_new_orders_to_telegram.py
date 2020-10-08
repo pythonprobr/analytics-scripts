@@ -60,12 +60,6 @@ def _send_messages(transactions):
     bot = telegram.Bot(token=TELEGRAM_BOT_TOKEN)
 
     for transaction in transactions:
-        if "pytools" not in transaction["items"][0]["id"].lower():
-            if "membership" not in transaction["items"][0]["id"].lower():
-                if "webdev" not in transaction["items"][0]["id"].lower():
-                    if "bootcamp" not in transaction["items"][0]["id"].lower():
-                        continue
-
         if not transaction["items"] or transaction["status"] not in (
             "authorized",
             "paid",
@@ -74,6 +68,8 @@ def _send_messages(transactions):
             continue
 
         msg = "<b>🚀 Venda Realizada!</b>\n\n"
+
+        msg += "📦 <b>Produto</b>: {}\n".format(transaction["items"][0]["id"])
 
         created = _prepare_datetime(transaction["date_created"])
         msg += f"🕖 <b>Data</b>: {created}\n"
