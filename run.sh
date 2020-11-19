@@ -1,2 +1,2 @@
 cd /root/project
-/root/.pyenv/shims/python3.8 v2/run.py
+/root/.pyenv/shims/python3.8 run.py
