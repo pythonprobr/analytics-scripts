@@ -110,6 +110,7 @@ class Transactions:
 
         data_from_api = {item["tid"]: item for item in self.transactions_prepared}
 
+        count_existing = 0
         for row in self.transactions_from_sheet:
             transaction_id = row[9]
             try:
@@ -120,12 +121,18 @@ class Transactions:
             if transaction_id in data_from_api:
                 row = list(data_from_api[transaction_id].values())
                 del data_from_api[transaction_id]
+                count_existing += 1
 
             self.transactions_to_sheet.append(row)
 
+        count_new = 0
         for transaction_id in data_from_api:
             row = list(data_from_api[transaction_id].values())
             self.transactions_to_sheet.append(row)
+            count_new += 1
+
+        log.info(f"{count_existing} linhas atualizadas.")
+        log.info(f"{count_new} linhas adicionadas.")
 
     def save_new_data_in_gsheets(self):
         log.info("Salvando novas transações na planilha...")
