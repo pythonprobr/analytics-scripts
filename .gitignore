@@ -133,3 +133,5 @@ dmypy.json
 /credentials.json
 /sheets.googleapis.com-python.json
 /.vscode/
+
+contrib/numbers.txt
