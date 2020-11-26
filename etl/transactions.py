@@ -68,6 +68,7 @@ class Transactions:
         log.info("Tratando informações recuperadas...")
 
         for transaction in self.transactions_raw:
+            del transaction["metadata"]
             if "items" in transaction and transaction["items"]:
                 transaction["item"] = transaction["items"][0]
                 del transaction["items"]
