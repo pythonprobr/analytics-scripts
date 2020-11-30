@@ -34,7 +34,7 @@ class Leads:
 
     def _get_days_ago(self):
         # return datetime(2020, 10, 1)
-        return datetime.now() - timedelta(hours=4)
+        return datetime.now() - timedelta(hours=8)
 
     def _get_tags_ids(self):
         log.info("Buscando ID das tags...")
