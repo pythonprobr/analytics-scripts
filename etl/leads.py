@@ -36,7 +36,7 @@ class Leads:
         log.info("Fim da tarefa.")
 
     def _get_days_ago(self):
-        # return datetime(2020, 10, 1)
+        return datetime(2020, 10, 1)
         return datetime.now() - timedelta(hours=8)
 
     def _get_tags_ids(self):
@@ -196,4 +196,4 @@ class Leads:
 
         worksheet = self._get_transactions_worksheet()
         if self.leads_to_sheet:
-            worksheet.update_values("A2", self.leads_to_sheet)
+            worksheet.update_values("A1", self.leads_to_sheet)
