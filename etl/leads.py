@@ -1,3 +1,5 @@
+import os
+import pickle
 from datetime import datetime, timedelta
 
 from activecampaign.client import Client
@@ -107,16 +109,24 @@ class Leads:
     def get_leads_tags(self):
         log.info("Buscando tags dos leads...")
 
+        filename = "/tmp/tags.pickle"
+        if os.path.exists(filename):
+            with open(filename, "rb") as handle:
+                self.tags = pickle.load(handle)
+
         tags_ids = []
         for email in self.emails:
             for tag_id in self.emails[email]["tags"]:
-                if tag_id not in tags_ids:
+                if tag_id not in self.tags:
                     tags_ids.append(tag_id)
 
         log.info(f"Buscando {len(tags_ids)} nomes de tags...")
         for tag_id in tags_ids:
             response_tag = self._get_tag_name(tag_id)
             self.tags[tag_id] = response_tag["tag"]
+
+        with open(filename, "wb") as handle:
+            pickle.dump(self.tags, handle)
 
     def prepare_data_to_be_loaded(self):
         log.info("Tratando informações recuperadas...")
@@ -169,6 +179,8 @@ class Leads:
             if email in data_from_api:
                 del data_from_api[email]
                 count_existing += 1
+
+            self.leads_to_sheet.append(row)
 
         count_new = 0
         for email in data_from_api:
