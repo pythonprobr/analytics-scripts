@@ -6,6 +6,7 @@ from flatten_dict import flatten
 from resources.gsheets import spreadsheet
 from resources.active_campaign import client
 from utils import log
+from settings import TIME_ZONE
 
 
 class Leads:
@@ -123,7 +124,7 @@ class Leads:
         for email in self.emails:
             data = self.emails[email]
             cdate = data["created_timestamp"]
-            now = datetime.now().strftime("%Y-%m-%d")
+            now = datetime.now().astimezone(TIME_ZONE).strftime("%Y-%m-%d")
             utm_tags = [self.tags[tag]["tag"] for tag in data["tags"]]
 
             utms = {}
