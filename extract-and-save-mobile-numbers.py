@@ -38,7 +38,7 @@ class Numbers:
         directory = sys.argv[1]
         word_identifier = "joined"
         count = 0
-        for file in glob(os.path.join(directory, "*RUMO*#*.zip")):
+        for file in glob(os.path.join(directory, "*RUMO*.zip")):
             with zipfile.ZipFile(file) as archive:
                 with archive.open("_chat.txt") as handle:
                     for line in handle.read().decode().split("\n"):
@@ -76,9 +76,11 @@ class Numbers:
     def prepare_data_to_be_loaded(self):
         log.info("Tratando informações recuperadas...")
 
+        origin = sys.argv[2]
+
         for number in self.numbers:
             now = datetime.now().astimezone(TIME_ZONE).strftime("%Y-%m-%d")
-            row = [f"'{number}", now]
+            row = [f"'{number}", now, origin]
             self.numbers_prepared.append(row)
 
     def _get_transactions_worksheet(self):
