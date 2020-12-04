@@ -14,6 +14,7 @@ from settings import TIME_ZONE
 class Leads:
     def __init__(self, *args, **kwargs):
         self.leads_tags = ["tpp-webiorico"]
+        self.leads_tags_ids = []
         self.emails = {}
         self.tags = {}
 
@@ -42,14 +43,13 @@ class Leads:
     def _get_tags_ids(self):
         log.info("Buscando ID das tags...")
 
-        tags_ids = []
         for tag in self.leads_tags:
             response = client._get(f"/tags/?search={tag}")
             for item in response["tags"]:
                 if item["tag"] == tag:
-                    tags_ids.append(item["id"])
+                    self.leads_tags_ids.append(item["id"])
 
-        return tags_ids
+        return self.leads_tags_ids
 
     def _get_tag_name(self, tag_id):
         return client._get(f"/tags/{tag_id}")
@@ -135,7 +135,9 @@ class Leads:
             data = self.emails[email]
             cdate = data["created_timestamp"]
             now = datetime.now().astimezone(TIME_ZONE).strftime("%Y-%m-%d")
-            utm_tags = [self.tags[tag]["tag"] for tag in data["tags"]]
+            tags = [self.tags[tag]["tag"] for tag in data["tags"]]
+
+            is_webiorico = "sim" if "tpp-webiorico" in tags else "não"
 
             utms = {}
             for item in [
@@ -146,7 +148,7 @@ class Leads:
                 "utm_content",
             ]:
                 utms[item] = None
-                for tag in utm_tags:
+                for tag in tags:
                     if item in tag:
                         utms[item] = tag.replace(f"{item}=", "").strip()
 
@@ -154,6 +156,7 @@ class Leads:
                 email,
                 cdate,
                 now,
+                is_webiorico,
             ]
             row += list(utms.values())
             self.leads_prepared.append(row)
