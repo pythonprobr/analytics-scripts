@@ -13,7 +13,7 @@ from settings import TIME_ZONE
 
 class Leads:
     def __init__(self, *args, **kwargs):
-        self.leads_tags = ["tpp-webiorico"]
+        self.leads_tags = ["tpp-webiorico", "l4-turma-thiago-avelino-jornada"]
         self.leads_tags_ids = []
         self.emails = {}
         self.tags = {}
@@ -97,6 +97,15 @@ class Leads:
                         tag_id = item["tag"]
                         self.emails[email]["tags"][tag_id] = item
 
+                    response_details = client._get(
+                        f"/contacts/{contact_id}/fieldValues",
+                        params={
+                            "offset": offset,
+                            "limit": limit,
+                        },
+                    )
+
+                    self.emails[email]["fieldValues"] = response_details["fieldValues"]
                     count += 1
                     # break
 
@@ -138,16 +147,26 @@ class Leads:
             tags = [self.tags[tag]["tag"] for tag in data["tags"]]
 
             is_webiorico = "sim" if "tpp-webiorico" in tags else "não"
+            is_launch = "sim" if "l4-turma-thiago-avelino-jornada" in tags else "não"
 
-            utms = {}
-            for item in [
-                "utm_source",
-                "utm_medium",
-                "utm_campaign",
-                "utm_term",
-                "utm_content",
-            ]:
-                utms[item] = None
+            if is_webiorico == "não" and is_launch == "não":
+                continue
+
+            mapping = {
+                "utm_source": "5",
+                "utm_medium": "6",
+                "utm_campaign": "7",
+                "utm_content": "8",
+                "utm_term": "9",
+            }
+
+            utms = {utm: None for utm in mapping}
+            for item in data["fieldValues"]:
+                for utm, id_ in mapping.items():
+                    if item["field"] == id_:
+                        utms[utm] = item["value"]
+
+            for item in utms:
                 for tag in tags:
                     if item in tag:
                         utms[item] = tag.replace(f"{item}=", "").strip()
@@ -157,6 +176,7 @@ class Leads:
                 cdate,
                 now,
                 is_webiorico,
+                is_launch,
             ]
             row += list(utms.values())
             self.leads_prepared.append(row)
@@ -180,6 +200,7 @@ class Leads:
         for row in self.leads_from_sheet:
             email = row[0]
             if email in data_from_api:
+                row = data_from_api[email]
                 del data_from_api[email]
                 count_existing += 1
 
