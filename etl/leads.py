@@ -160,7 +160,7 @@ class Leads:
                 "utm_term": "9",
             }
 
-            utms = {utm: None for utm in mapping}
+            utms = {utm: "" for utm in mapping}
             for item in data["fieldValues"]:
                 for utm, id_ in mapping.items():
                     if item["field"] == id_:
@@ -200,7 +200,9 @@ class Leads:
         for row in self.leads_from_sheet:
             email = row[0]
             if email in data_from_api:
-                row = data_from_api[email]
+                if row[3:10] != data_from_api[email][3:10]:
+                    row = data_from_api[email]
+
                 del data_from_api[email]
                 count_existing += 1
 
