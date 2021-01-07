@@ -12,6 +12,8 @@ from resources.active_campaign import client
 from utils import log
 from settings import TIME_ZONE
 
+GLOB_STRING = "*RUMO*.zip"
+
 
 class Numbers:
     def __init__(self, *args, **kwargs):
@@ -38,7 +40,9 @@ class Numbers:
         directory = sys.argv[1]
         word_identifier = "joined"
         count = 0
-        for file in glob(os.path.join(directory, "*RUMO*.zip")):
+        for file in glob(os.path.join(directory, GLOB_STRING)):
+            log.info(f"Extraindo números do arquivo {file}...")
+
             with zipfile.ZipFile(file) as archive:
                 with archive.open("_chat.txt") as handle:
                     for line in handle.read().decode().split("\n"):
@@ -48,9 +52,9 @@ class Numbers:
                             number = "+{}".format(
                                 number.split(word_identifier)[0].strip()
                             )
-                            number = number.replace("+55", "")
-                            number = number.replace("+", "")
-                            number = number.replace("‑", "")
+                            # number = number.replace("+55", "")
+                            # number = number.replace("+", "")
+                            # number = number.replace("‑", "")
                             number = number.strip()
 
                             if number not in self.numbers:
@@ -102,6 +106,7 @@ class Numbers:
         for row in self.numbers_from_sheet:
             number = "'{}".format(row[0])
             if number in data_from_api:
+                row = data_from_api[number]
                 del data_from_api[number]
                 count_existing += 1
 
